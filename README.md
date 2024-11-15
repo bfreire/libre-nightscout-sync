@@ -2,6 +2,17 @@
 
 A Python script that synchronizes glucose data between LibreLink Up and Nightscout. This tool allows you to automatically fetch glucose readings from LibreLink Up and upload them to your Nightscout instance.
 
+This script allows you to automate the transfer of glucose data from LibreLinkUp (an app that monitors glucose levels in real time from FreeStyle Libre devices) to Nightscout, a platform for remote glucose monitoring and visualization.
+
+Benefits:
+
+	1.	Automation: Eliminates the need to manually input LibreLinkUp data into Nightscout.
+	2.	Remote Monitoring: Enables caregivers, family members, or healthcare professionals to monitor glucose levels in real time or near real time.
+	3.	Integration: Consolidates glucose data into a single platform (Nightscout), which offers detailed graphs, alerts, and history.
+	4.	Convenience: Ideal for users who rely on FreeStyle Libre and use Nightscout for diabetes data management and sharing.
+
+This integration is especially useful for people with diabetes who need to monitor and share their glucose levels with a support team or family members.
+
 ## Features
 
 - Automatic synchronization between LibreLink Up and Nightscout
