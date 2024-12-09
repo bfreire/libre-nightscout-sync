@@ -1,5 +1,8 @@
 #!/usr/bin/with-contenv bashio
 
+# Ensure data directory exists
+mkdir -p /data
+
 # Get config values
 LIBRELINK_USERNAME=$(bashio::config 'librelink_username')
 LIBRELINK_PASSWORD=$(bashio::config 'librelink_password')
@@ -16,6 +19,12 @@ export NIGHTSCOUT_URL
 export NIGHTSCOUT_API_TOKEN
 
 bashio::log.info "Starting LibreLink Up to Nightscout Sync..."
+
+# Create options file if it doesn't exist
+if [ ! -f "/data/options.json" ]; then
+    echo "{}" > /data/options.json
+    chmod 644 /data/options.json
+fi
 
 while true; do
     python3 /app/libre_nightscout_sync.py

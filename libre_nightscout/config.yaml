@@ -11,6 +11,9 @@ arch:
   - i386
 startup: application
 boot: auto
+init: false
+map:
+  - addon_config:rw
 options:
   librelink_username: ""
   librelink_password: ""
@@ -24,4 +27,5 @@ schema:
   librelink_region: list(EU|US)
   nightscout_url: str
   nightscout_api_token: password
-  sync_interval: int(1,60) 
+  sync_interval: int(1,60)
+image: "ghcr.io/{build.repository}/libre-nightscout-sync-{build.arch}" 
