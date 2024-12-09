@@ -28,4 +28,4 @@ schema:
   nightscout_url: str
   nightscout_api_token: password
   sync_interval: int(1,60)
-image: "ghcr.io/{build.repository}/libre-nightscout-sync-{build.arch}" 
+image: "ghcr.io/bfreire/libre-nightscout-sync-{arch}" 
