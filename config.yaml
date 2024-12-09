@@ -2,7 +2,7 @@ name: "LibreLink Up to Nightscout Sync"
 version: "1.0.0"
 slug: "libre_nightscout_sync"
 description: "Synchronize LibreLink Up glucose data with Nightscout"
-url: "https://github.com/yourusername/libre-nightscout-addon"
+url: "https://github.com/bfreire/libre-nightscout-sync"
 arch:
   - armhf
   - armv7
