@@ -20,7 +20,7 @@ This add-on allows you to automatically sync glucose readings from LibreLink Up 
 ## Installation
 
 1. Click the Home Assistant My button below to add the repository to your Home Assistant instance.
-   [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/yourusername/libre-nightscout-addon)
+   [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/bfreire/libre-nightscout-sync)
 
 2. Install the "LibreLink Up to Nightscout Sync" add-on.
 3. Configure the add-on (see configuration below).
