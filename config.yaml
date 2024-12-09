@@ -1,0 +1,27 @@
+name: "LibreLink Up to Nightscout Sync"
+version: "1.0.0"
+slug: "libre_nightscout_sync"
+description: "Synchronize LibreLink Up glucose data with Nightscout"
+url: "https://github.com/yourusername/libre-nightscout-addon"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+startup: application
+boot: auto
+options:
+  librelink_username: ""
+  librelink_password: ""
+  librelink_region: "EU"
+  nightscout_url: ""
+  nightscout_api_token: ""
+  sync_interval: 5
+schema:
+  librelink_username: str
+  librelink_password: password
+  librelink_region: list(EU|US)
+  nightscout_url: str
+  nightscout_api_token: password
+  sync_interval: int(1,60) 
