@@ -28,4 +28,5 @@ schema:
   nightscout_url: str
   nightscout_api_token: password
   sync_interval: int(1,60)
-image: "homeassistant/{arch}-addon-libre-nightscout-sync" 
+advanced: true
+build_from: "ghcr.io/home-assistant/{arch}-base:3.16" 
