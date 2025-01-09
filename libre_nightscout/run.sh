@@ -26,7 +26,5 @@ if [ ! -f "/data/options.json" ]; then
     chmod 644 /data/options.json
 fi
 
-while true; do
-    python3 /app/libre_nightscout_sync.py
-    sleep "${SYNC_INTERVAL}m"
-done 
+# Start the Python script
+python3 /app/libre_nightscout_sync.py 
