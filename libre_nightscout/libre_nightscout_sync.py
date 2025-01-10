@@ -61,6 +61,7 @@ class LibreLinkUploader:
 
     def authenticate(self) -> None:
         """Authenticate with LibreLink Up API."""
+        print("Starting authentication process...")
         headers = {
             "User-Agent": "LibreLinkUp",
             "Content-Type": "application/json",
@@ -81,8 +82,12 @@ class LibreLinkUploader:
         region = self.config["librelink"]["region"].lower()
         url = f"https://api-{region}.libreview.io/llu/auth/login"
         
+        print(f"Authenticating with region: {region}")
         try:
+            print("Sending authentication request...")
             response = self.libre_session.post(url, json=data, headers=headers)
+            print(f"Authentication response status: {response.status_code}")
+            print(f"Authentication response: {response.text}")
             response.raise_for_status()
             
             auth_data = response.json()
@@ -322,48 +327,9 @@ class LibreLinkUploader:
         }
         return mapping.get(arrow_value, "NOT COMPUTABLE")
 
-def run_continuous():
-    """Run the sync process continuously."""
-    try:
-        uploader = LibreLinkUploader(credentials)
-        
-        # Get sync interval from environment (default to 5 minutes)
-        sync_interval = int(os.getenv('SYNC_INTERVAL', '5'))
-        print(f"Sync interval set to {sync_interval} minutes")
-        
-        # Initial setup
-        if not uploader.validate_nightscout_api():
-            raise Exception("Failed to validate Nightscout API connection")
-            
-        uploader.authenticate()
-        
-        while True:
-            try:
-                # Ensure we have a valid authentication
-                uploader.ensure_authenticated()
-                
-                # Get and upload data
-                glucose_data = uploader.get_glucose_data()
-                uploader.upload_to_nightscout(glucose_data)
-                
-                # Wait for the configured interval
-                print(f"Waiting {sync_interval} minutes until next sync...")
-                time.sleep(sync_interval * 60)  # Convert minutes to seconds
-                
-            except requests.exceptions.RequestException as e:
-                print(f"Network error during sync: {e}")
-                # Wait a bit before retrying on network errors
-                time.sleep(30)
-            except Exception as e:
-                print(f"Error during sync: {e}")
-                # Wait a bit before retrying on other errors
-                time.sleep(30)
-                
-    except Exception as e:
-        print(f"Fatal error: {e}")
-        sys.exit(1)
-
 def main():
+    print("Starting LibreLink Up to Nightscout Sync Python script...")
+    
     # Validate required environment variables
     required_env_vars = [
         "LIBRELINK_USERNAME",
@@ -374,21 +340,63 @@ def main():
         "SYNC_INTERVAL"
     ]
     
+    print("Checking environment variables...")
     missing_vars = [var for var in required_env_vars if not os.getenv(var)]
     if missing_vars:
         print(f"Error: Missing required environment variables: {', '.join(missing_vars)}")
         sys.exit(1)
-        
+    
     # Validate sync interval
     try:
         sync_interval = int(os.getenv('SYNC_INTERVAL'))
         if sync_interval < 1 or sync_interval > 60:
             raise ValueError("SYNC_INTERVAL must be between 1 and 60 minutes")
+        print(f"Sync interval set to {sync_interval} minutes")
     except ValueError as e:
         print(f"Error: Invalid SYNC_INTERVAL value: {e}")
         sys.exit(1)
     
-    run_continuous()
+    print("Environment validation complete. Starting sync process...")
+    uploader = None
+    
+    while True:
+        try:
+            if uploader is None:
+                print("Initializing uploader...")
+                uploader = LibreLinkUploader(credentials)
+                print("Validating Nightscout API...")
+                if not uploader.validate_nightscout_api():
+                    raise Exception("Failed to validate Nightscout API connection")
+                print("Authenticating with LibreLink Up...")
+                uploader.authenticate()
+            
+            print("Ensuring authentication is valid...")
+            uploader.ensure_authenticated()
+            
+            print("Fetching glucose data...")
+            glucose_data = uploader.get_glucose_data()
+            print(f"Found {len(glucose_data)} glucose readings")
+            
+            print("Uploading to Nightscout...")
+            uploader.upload_to_nightscout(glucose_data)
+            
+            print(f"Waiting {sync_interval} minutes until next sync...")
+            time.sleep(sync_interval * 60)  # Convert minutes to seconds
+                    
+        except requests.exceptions.RequestException as e:
+            print(f"Network error during sync: {e}")
+            if hasattr(e.response, 'text'):
+                print(f"Response content: {e.response.text}")
+            uploader = None  # Reset uploader to force re-authentication
+            time.sleep(30)  # Wait before retry
+        except Exception as e:
+            print(f"Error during sync: {e}")
+            uploader = None  # Reset uploader to force re-authentication
+            time.sleep(30)  # Wait before retry
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"Fatal error in main: {e}")
+        sys.exit(1)
