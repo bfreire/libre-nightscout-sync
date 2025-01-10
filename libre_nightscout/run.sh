@@ -17,6 +17,7 @@ export LIBRELINK_PASSWORD
 export LIBRELINK_REGION
 export NIGHTSCOUT_URL
 export NIGHTSCOUT_API_TOKEN
+export SYNC_INTERVAL
 
 bashio::log.info "Starting LibreLink Up to Nightscout Sync..."
 
