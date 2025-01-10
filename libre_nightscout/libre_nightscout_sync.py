@@ -5,6 +5,7 @@ import sys
 import os
 from dotenv import load_dotenv
 import time
+import hashlib
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -27,9 +28,16 @@ class LibreLinkUploader:
         self.libre_session = requests.Session()
         self.nightscout_session = requests.Session()
         self.auth_token = None
+        self.user_id = None
         self.last_auth_time = None
         self.auth_valid = False
         
+    def calculate_account_id(self, user_id: str) -> str:
+        """Calculate Account-Id header value using SHA256."""
+        if not user_id:
+            raise Exception("User ID is required to calculate Account-Id")
+        return hashlib.sha256(user_id.encode('utf-8')).hexdigest()
+
     def is_auth_valid(self) -> bool:
         """Check if the current authentication is valid."""
         if not self.auth_token or not self.auth_valid:
@@ -57,13 +65,17 @@ class LibreLinkUploader:
             "User-Agent": "LibreLinkUp",
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Product": "llu.android",
-            "Version": "4.7.0"
+            "product": "llu.android",
+            "version": "4.13.0",
+            "Connection": "keep-alive",
+            "Pragma": "no-cache",
+            "Cache-Control": "no-cache"
         }
         
         data = {
             "email": self.config["librelink"]["username"],
-            "password": self.config["librelink"]["password"]
+            "password": self.config["librelink"]["password"],
+            "region": self.config["librelink"]["region"].lower()
         }
         
         region = self.config["librelink"]["region"].lower()
@@ -79,16 +91,31 @@ class LibreLinkUploader:
                 raise Exception(f"Authentication failed: {error_msg}")
             
             self.auth_token = auth_data["data"]["authTicket"]["token"]
+            self.user_id = auth_data["data"].get("user", {}).get("id")
+            
+            if not self.user_id:
+                raise Exception("Failed to get user ID from authentication response")
+            
+            # Calculate Account-Id using SHA256
+            account_id = self.calculate_account_id(self.user_id)
+            
+            # Update session headers with authentication token and account ID
             self.libre_session.headers.update({
                 "Authorization": f"Bearer {self.auth_token}",
                 "User-Agent": "LibreLinkUp",
-                "Product": "llu.android",
-                "Version": "4.7.0"
+                "product": "llu.android",
+                "version": "4.13.0",
+                "Connection": "keep-alive",
+                "Account-Id": account_id,
+                "Pragma": "no-cache",
+                "Cache-Control": "no-cache"
             })
             self.auth_valid = True
+            print("Successfully authenticated with LibreLink Up")
             
         except requests.exceptions.RequestException as e:
             self.auth_valid = False
+            print(f"Authentication response: {e.response.text if hasattr(e, 'response') else 'No response'}")
             raise Exception(f"Network error during authentication: {str(e)}")
         except Exception as e:
             self.auth_valid = False
