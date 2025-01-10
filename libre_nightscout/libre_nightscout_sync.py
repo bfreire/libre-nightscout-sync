@@ -7,8 +7,23 @@ from dotenv import load_dotenv
 import time
 import hashlib
 
-load_dotenv()  # Load environment variables from .env file
+# Add immediate logging
+print("Script started - importing modules complete")
 
+# Load environment variables and print them (masking sensitive data)
+load_dotenv()
+print("\nChecking environment variables:")
+env_vars = {
+    "LIBRELINK_USERNAME": os.getenv("LIBRELINK_USERNAME", "not set"),
+    "LIBRELINK_REGION": os.getenv("LIBRELINK_REGION", "not set"),
+    "NIGHTSCOUT_URL": os.getenv("NIGHTSCOUT_URL", "not set"),
+    "SYNC_INTERVAL": os.getenv("SYNC_INTERVAL", "not set")
+}
+for key, value in env_vars.items():
+    if key not in ["LIBRELINK_PASSWORD", "NIGHTSCOUT_API_TOKEN"]:
+        print(f"{key}: {value}")
+
+print("\nSetting up credentials dictionary")
 credentials = {
     "librelink": {
         "username": os.getenv("LIBRELINK_USERNAME"),
@@ -20,6 +35,8 @@ credentials = {
         "api_token": os.getenv("NIGHTSCOUT_API_TOKEN")
     }
 }
+
+print("Credentials dictionary created")
 
 class LibreLinkUploader:
     def __init__(self, credentials: dict):
